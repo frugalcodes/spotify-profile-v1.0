@@ -57,11 +57,7 @@ if (cluster.isMaster) {
 } else {
   const app = express();
 
-  // Priority serve any static files.
-  app.use(express.static(path.resolve(__dirname, '../client/build')));
-
   app
-    .use(express.static(path.resolve(__dirname, '../client/build')))
     .use(cors())
     .use(cookieParser())
     .use(
@@ -77,7 +73,7 @@ if (cluster.isMaster) {
     .use(express.static(path.resolve(__dirname, '../client/build')));
 
   app.get('/', function (req, res) {
-    res.render(path.resolve(__dirname, '../client/build/index.html'));
+    res.sendFile(path.resolve(__dirname, '../client/build/index.html'));
   });
 
   app.get('/login', function (req, res) {
@@ -100,9 +96,6 @@ if (cluster.isMaster) {
   });
 
   app.get('/callback', function (req, res) {
-    // your application requests refresh and access tokens
-    // after checking the state parameter
-
     const code = req.query.code || null;
     const state = req.query.state || null;
     const storedState = req.cookies ? req.cookies[stateKey] : null;
@@ -119,9 +112,7 @@ if (cluster.isMaster) {
           grant_type: 'authorization_code',
         },
         headers: {
-          Authorization: `Basic ${new Buffer.from(`${CLIENT_ID}:${CLIENT_SECRET}`).toString(
-            'base64',
-          )}`,
+          Authorization: `Basic ${Buffer.from(`${CLIENT_ID}:${CLIENT_SECRET}`).toString('base64')}`,
         },
         json: true,
       };
@@ -131,7 +122,6 @@ if (cluster.isMaster) {
           const access_token = body.access_token;
           const refresh_token = body.refresh_token;
 
-          // we can also pass the token to the browser to make requests from there
           res.redirect(
             `${FRONTEND_URI}/#${querystring.stringify({
               access_token,
@@ -146,14 +136,11 @@ if (cluster.isMaster) {
   });
 
   app.get('/refresh_token', function (req, res) {
-    // requesting access token from refresh token
     const refresh_token = req.query.refresh_token;
     const authOptions = {
       url: 'https://accounts.spotify.com/api/token',
       headers: {
-        Authorization: `Basic ${new Buffer.from(`${CLIENT_ID}:${CLIENT_SECRET}`).toString(
-          'base64',
-        )}`,
+        Authorization: `Basic ${Buffer.from(`${CLIENT_ID}:${CLIENT_SECRET}`).toString('base64')}`,
       },
       form: {
         grant_type: 'refresh_token',
@@ -170,11 +157,7 @@ if (cluster.isMaster) {
     });
   });
 
-  // All remaining requests return the React app, so it can handle routing.
-  app.get('*', function (request, response) {
-    response.sendFile(path.resolve(__dirname, '../client/public', 'index.html'));
-  });
-
+  const PORT = process.env.PORT || 8888;
   app.listen(PORT, function () {
     console.warn(`Node cluster worker ${process.pid}: listening on port ${PORT}`);
   });
