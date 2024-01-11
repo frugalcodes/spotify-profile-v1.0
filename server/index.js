@@ -5,13 +5,13 @@ require('dotenv').config();
 
 const CLIENT_ID = process.env.CLIENT_ID;
 const CLIENT_SECRET = process.env.CLIENT_SECRET;
-let REDIRECT_URI = process.env.REDIRECT_URI || 'http://localhost:8888/callback';
-let FRONTEND_URI = process.env.FRONTEND_URI || 'http://localhost:3000';
+let REDIRECT_URI = process.env.REDIRECT_URI || 'https://spotify-profile-v1-0.onrender.com/callback';
+let FRONTEND_URI = process.env.FRONTEND_URI || 'https://spotify-profile-v1-0.onrender.com';
 const PORT = process.env.PORT || 8888;
 
 if (process.env.NODE_ENV !== 'production') {
-  REDIRECT_URI = 'http://localhost:8888/callback';
-  FRONTEND_URI = 'http://localhost:3000';
+  REDIRECT_URI = 'https://spotify-profile-v1-0.onrender.com/callback';
+  FRONTEND_URI = 'https://spotify-profile-v1-0.onrender.com';
 }
 
 const express = require('express');
